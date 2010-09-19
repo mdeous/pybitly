@@ -39,7 +39,7 @@ class ApiError(Exception):
         return repr(self.value)
 
 
-class ArgTypeError(Exception):
+class ArgTypeError(ApiError):
     """
     An argument does not have the expected type.
     """
@@ -68,6 +68,7 @@ class Api(object):
     def _checkResp(self, data):
         """
         Check query status and raise an ApiError if not OK.
+
         @param data (dict): query response
         """
         if data['status_code'] != 200:
@@ -77,8 +78,10 @@ class Api(object):
     def _multiArgs(self, argname, args):
         """
         Format URL arguments for queries allowing multiple ones.
+
         @param argname (str): argument name
         @param args (list): arguments to format
+
         @return str: formatted arguments
         """
         if len(args) == 0:
@@ -89,11 +92,23 @@ class Api(object):
         arglist = '&'+'&'.join(arglist)
         return arglist
 
+    def _typeStr(self, obj):
+        """
+        Get the string representation of an object's type.
+
+        @param obj (object): object to get type from
+
+        @return str: type string
+        """
+        return str(type(obj)).split("'")[1]
+
     def shorten(self, longUrl, domain="bit.ly"):
         """
         Shorten a given URL.
+
         @param longUrl (str): url to shorten
         @param domain (str): domain to use for the short URL ('bit.ly' or 'j.mp')
+
         @return dict: informations about shortened URL
         """
         if (domain not in ("bit.ly", "j.mp")) and (not self.bitly_pro_domain(domain)):
@@ -103,37 +118,44 @@ class Api(object):
         self._checkResp(resp)
         return resp['data']
 
-    def expand(self, shortUrl=None, urlHash=None):
+    def expand(self, shortUrls=None, urlHashs=None):
         """
         Expand short URLs/hashs.
-        @param shortUrl (list): zero or more short URLs to expand
-        @param urlHash (list): zero or more URL hashs to expand
+
+        @param shortUrls (list): zero or more short URLs to expand
+        @param urlHashs (list): zero or more URL hashs to expand
+
         @return dict: informations about expanded URLs
         """
-        if (shortUrl is None) and (urlHash is None):
+        if (shortUrls is None) and (urlHashs is None):
             return {}
-        if shortUrl is None:
+        if shortUrls is None:
             urlarg = ''
         else:
-            if type(shortUrl) is not list:
-                raise ArgTypeError('shortUrl', str(type(shortUrl)).split("'")[1], 'list')
-            urlarg = self._multiArgs('shortUrl', shortUrl)
-        if urlHash is None:
+            if type(shortUrls) is not list:
+                raise ArgTypeError('shortUrls', self._typeStr(shortUrls), 'list')
+            urlarg = self._multiArgs('shortUrl', shortUrls)
+        if urlHashs is None:
             hasharg = ''
         else:
-            if type(urlHash) is not list:
-                raise ArgTypeError('urlHash', str(type(urlHash)).split("'")[1], 'list')
-            hasharg = self._multiArgs('hash', urlHash)
+            if type(urlHashs) is not list:
+                raise ArgTypeError('urlHashs', self._typeStr(urlHashs), 'list')
+            hasharg = self._multiArgs('hash', urlHashs)
         url = "%s/expand?login=%s&apiKey=%s%s%s" % (self.baseURL, self.login, self.key, urlarg, hasharg)
         resp = json.load(self.opener.open(url))
         self._checkResp(resp)
-        return resp['data']['expand']
+        data = resp['data']['expand']
+        if len(data) == 1:
+            data = data[0]
+        return data
 
     def validate(self, login, key):
         """
         Validate a bit.ly API account.
+
         @param login (str): login for the account to check
         @param key (str): key for the account to check
+
         @return bool: True if the account is valid
         """
         url = "%s/validate?login=%s&apiKey=%s&x_login=%s&x_apiKey=%s" % (self.baseURL, self.login, self.key, login, key)
@@ -141,35 +163,44 @@ class Api(object):
         self._checkResp(resp)
         return True if (resp['data']['valid'] == 1) else False
 
-    def clicks(self, shortUrl=None, urlHash=None):
+    def clicks(self, shortUrls=None, urlHashs=None):
         """
         Get statistics about short URLs/hashs.
-        @param shortUrl (list): zero or more short URLs to expand
-        @param urlHash (list): zero or more URL hashs to expand
+
+        @param shortUrls (list): zero or more short URLs to expand
+        @param urlHashs (list): zero or more URL hashs to expand
+
         @return dict: statistics about short URLs
         """
-        if (shortUrl is None) and (urlHash is None):
+        if (shortUrls is None) and (urlHashs is None):
             return {}
-        if shortUrl is None:
+        if shortUrls is None:
             urlarg = ''
         else:
-            urlarg = self._multiArgs('shortUrl', shortUrl)
-        if urlHash is None:
+            if type(shortUrls) is not list:
+                raise ArgTypeError('shortUrls', self._typeStr(shortUrls), 'list')
+            urlarg = self._multiArgs('shortUrl', shortUrls)
+        if urlHashs is None:
             hasharg = ''
         else:
-            if type(urlHash) is not list:
-                raise ArgTypeError('urlHash', str(type(urlHash)).split("'")[1], 'list')
-            hasharg = self._multiArgs('hash', urlHash)
+            if type(urlHashs) is not list:
+                raise ArgTypeError('urlHashs', self._typeStr(urlHashs), 'list')
+            hasharg = self._multiArgs('hash', urlHashs)
         url = '%s/clicks?login=%s&apiKey=%s%s%s' % (self.baseURL, self.login, self.key, urlarg, hasharg)
         resp = json.load(self.opener.open(url))
         self._checkResp(resp)
-        return resp['data']['clicks']
+        data = resp['data']['clicks']
+        if len(data) == 1:
+            data = data[0]
+        return data
 
     def referrers(self, shortUrl=None, urlHash=None):
         """
         Get referring sites and number of clicks per referrer for a given short URL or hash.
-        @param shortUrl (str or None): URL to get referrers for
+
+        @param shortUrl (str): URL to get referrers for
         @param urlHash (str): URL hash to get referrers for
+
         @return dict: referrers and clicks for the URL
         """
         if (shortUrl is None) and (urlHash is None):
@@ -187,8 +218,10 @@ class Api(object):
     def countries(self, shortUrl=None, urlHash=None):
         """
         Get a list of countries from which clicks have originated for a given URL or hash.
-        @param shortUrl (str or None): URL to get countries for
-        @param urlHash (str or None): URL hash to get countries for
+
+        @param shortUrl (str): URL to get countries for
+        @param urlHash (str): URL hash to get countries for
+
         @return dict: countries informations for the URL or hash
         """
         if (shortUrl is None) and (urlHash is None):
@@ -203,36 +236,43 @@ class Api(object):
         self._checkResp(resp)
         return resp['data']
 
-    def clicks_by_minute(self, shortUrl=None, urlHash=None):
+    def clicks_by_minute(self, shortUrls=None, urlHashs=None):
         """
         Get time series clicks per minute for the last hour (most recent to least recent) about short URLs/hashs.
-        @param shortUrl (list): zero or more URLs to get clicks statistics for
-        @param urlHash (list): zero or more URL hashs to get clicks statistics for
+
+        @param shortUrls (list): zero or more URLs to get clicks statistics for
+        @param urlHashs (list): zero or more URL hashs to get clicks statistics for
+
         @return dict: clicks statistics about short URLs
         """
-        if (shortUrl is None) and (urlHash is None):
+        if (shortUrls is None) and (urlHashs is None):
             return {}
-        if shortUrl is None:
+        if shortUrls is None:
             urlarg = ''
         else:
-            if type(shortUrl) is not list:
-                raise ArgTypeError('shortUrl', str(type(shortUrl)).split("'")[1], 'list')
-            urlarg = self._multiArgs('shortUrl', shortUrl)
-        if urlHash is None:
+            if type(shortUrls) is not list:
+                raise ArgTypeError('shortUrls', self._typeStr(shortUrls), 'list')
+            urlarg = self._multiArgs('shortUrl', shortUrls)
+        if urlHashs is None:
             hasharg = ''
         else:
-            if type(urlHash) is not list:
-                raise ArgTypeError('urlHash', str(type(urlHash)).split("'")[1], 'list')
-            hasharg = self._multiArgs('hash', urlHash)
+            if type(urlHashs) is not list:
+                raise ArgTypeError('urlHashs', self._typeStr(urlHashs), 'list')
+            hasharg = self._multiArgs('hash', urlHashs)
         url = "%s/clicks_by_minute?login=%s&apiKey=%s%s%s" % (self.baseURL, self.login, self.key, urlarg, hasharg)
         resp = json.load(self.opener.open(url))
         self._checkResp(resp)
-        return resp['data']['clicks_by_minute']
+        data = resp['data']['clicks_by_minute']
+        if len(data) == 1:
+            data = data[0]
+        return data
 
     def bitly_pro_domain(self, domain):
         """
         Check whether a given short domain is assigned for bitly Pro.
+
         @param domain (str): domain to check
+
         @return bool: True if the domain is assigned for bitly Pro
         """
         url = "%s/bitly_pro_domain?login=%s&apiKey=%s&domain=%s" % (self.baseURL, self.login, self.key, domain)
@@ -240,17 +280,19 @@ class Api(object):
         self._checkResp(resp)
         return True if (resp['data']['bitly_pro_domain'] == 1) else False
 
-    def lookup(self, longUrl=None):
+    def lookup(self, longUrls=None):
         """
         Find short URLs corresponding to given long URLs.
-        @param longUrl (list): zero or more long URLs to find
+
+        @param longUrls (list): zero or more long URLs to find
+
         @return dict: informations about found short URLs
         """
-        if longUrl is None:
+        if longUrls is None:
             return {}
-        if type(longUrl) is not list:
-            raise ArgTypeError('longUrl', str(type(longUrl)).split("'")[1], 'list')
-        urlarg = self._multiArgs('url', longUrl)
+        if type(longUrls) is not list:
+            raise ArgTypeError('longUrls', self._typeStr(longUrls), 'list')
+        urlarg = self._multiArgs('url', longUrls)
         url = "%s/lookup?login=%s&apiKey=%s%s" % (self.baseURL, self.login, self.key, urlarg)
         resp = json.load(self.opener.open(url))
         self._checkResp(resp)
@@ -259,10 +301,12 @@ class Api(object):
     def authenticate(self, login, password):
         """
         Lookup a bit.ly API key given an account username and password.
-        Access to this function is restricted and must be requested
-        by email at api@bit.ly.
+        Access to this function is restricted and must be requested by
+        email at api@bit.ly.
+
         @param login (str): account username
         @param password (str): account password
+
         @return dict: informations about requested account
         """
         url = "%s/authenticate" % self.baseURL
@@ -276,28 +320,33 @@ class Api(object):
         self._checkResp(resp)
         return resp['data']['authenticate']
 
-    def info(self, shortUrl=None, urlHash=None):
+    def info(self, shortUrls=None, urlHashs=None):
         """
         Get informations about short URLs/hashs (creator, page title, ...).
-        @param shortUrl (list): zero or more short URLs to query
-        @param urlHash (list): zero or more short URL hashs to query
+
+        @param shortUrls (list): zero or more short URLs to query
+        @param urlHashs (list): zero or more short URL hashs to query
+
         @return dict: informations about queried URLs/hashs
         """
-        if (shortUrl is None) and (urlHash is None):
+        if (shortUrls is None) and (urlHashs is None):
             return {}
-        if shortUrl is None:
+        if shortUrls is None:
             urlarg = ''
         else:
-            if type(shortUrl) is not list:
-                raise ArgTypeError('shortUrl', str(type(shortUrl)).split("'")[1], 'list')
-            urlarg = self._multiArgs('shortUrl', shortUrl)
-        if urlHash is None:
+            if type(shortUrls) is not list:
+                raise ArgTypeError('shortUrls', self._typeStr(shortUrls), 'list')
+            urlarg = self._multiArgs('shortUrl', shortUrls)
+        if urlHashs is None:
             hasharg = ''
         else:
-            if type(urlHash) is not list:
-                raise ArgTypeError('urlHash', str(type(urlHash)).split("'")[1], 'list')
-            hasharg = self._multiArgs('hash', urlHash)
+            if type(urlHashs) is not list:
+                raise ArgTypeError('urlHashs', self._typeStr(urlHashs), 'list')
+            hasharg = self._multiArgs('hash', urlHashs)
         url = "%s/info?login=%s&apiKey=%s%s%s" % (self.baseURL, self.login, self.key, urlarg, hasharg)
         resp = json.load(self.opener.open(url))
         self._checkResp(resp)
-        return resp['data']['info']
+        data = resp['data']['info']
+        if len(data) == 1:
+            data = data[0]
+        return data
