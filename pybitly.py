@@ -58,8 +58,10 @@ class Api(object):
 
     def __init__(self, login, key):
         """
-        @param login (str): API login
-        @param key (str): API key
+        @param login: API login
+        @type login: str
+        @param key: API key
+        @type key:  str
         """
         self.login = login
         self.key = key
@@ -69,7 +71,8 @@ class Api(object):
         """
         Check query status and raise an ApiError if not OK.
 
-        @param data (dict): query response
+        @param data: query response
+        @type data: dict
         """
         if data['status_code'] != 200:
             message = "Error %d: %s." % (data['status_code'], data['status_txt'])
@@ -79,10 +82,13 @@ class Api(object):
         """
         Format URL arguments for queries allowing multiple ones.
 
-        @param argname (str): argument name
-        @param args (list): arguments to format
+        @param argname: argument name
+        @type argname: str
+        @param args: arguments to format
+        @type args: list
 
-        @return str: formatted arguments
+        @return: formatted arguments
+        @rtype: str
         """
         if len(args) == 0:
             return ''
@@ -96,9 +102,11 @@ class Api(object):
         """
         Get the string representation of an object's type.
 
-        @param obj (object): object to get type from
+        @param obj: object to get type from
+        @type obj: object
 
-        @return str: type string
+        @return: type string
+        @rtype: str
         """
         return str(type(obj)).split("'")[1]
 
@@ -106,10 +114,13 @@ class Api(object):
         """
         Shorten a given URL.
 
-        @param longUrl (str): url to shorten
-        @param domain (str): domain to use for the short URL ('bit.ly' or 'j.mp')
+        @param longUrl: url to shorten
+        @type longUrl: str
+        @param domain: domain to use for the short URL ('bit.ly' or 'j.mp')
+        @type domain: str
 
-        @return dict: informations about shortened URL
+        @return: informations about shortened URL
+        @rtype: dict
         """
         if domain not in ("bit.ly", "j.mp"):
             raise ApiError("Unknown domain: %s (allowed: 'bit.ly' and 'j.mp')" % domain)
@@ -122,10 +133,13 @@ class Api(object):
         """
         Expand short URLs/hashs.
 
-        @param shortUrls (list): zero or more short URLs to expand
-        @param urlHashs (list): zero or more URL hashs to expand
+        @param shortUrls: zero or more short URLs to expand
+        @type shortUrls: list
+        @param urlHashs: zero or more URL hashs to expand
+        @type urlHashs: list
 
-        @return dict: informations about expanded URLs
+        @return: informations about expanded URLs
+        @rtype: dict
         """
         if (shortUrls is None) and (urlHashs is None):
             return {}
@@ -153,10 +167,13 @@ class Api(object):
         """
         Validate a bit.ly API account.
 
-        @param login (str): login for the account to check
-        @param key (str): key for the account to check
+        @param login: login for the account to check
+        @type login: str
+        @param key: key for the account to check
+        @type key: str
 
-        @return bool: True if the account is valid
+        @return: True if the account is valid
+        @rtype: bool
         """
         url = "%s/validate?login=%s&apiKey=%s&x_login=%s&x_apiKey=%s" % (self.baseURL, self.login, self.key, login, key)
         resp = json.load(self.opener.open(url))
@@ -167,10 +184,13 @@ class Api(object):
         """
         Get statistics about short URLs/hashs.
 
-        @param shortUrls (list): zero or more short URLs to expand
-        @param urlHashs (list): zero or more URL hashs to expand
+        @param shortUrls: zero or more short URLs to expand
+        @type shortUrls: list
+        @param urlHashs: zero or more URL hashs to expand
+        @type urlHashs: list
 
-        @return dict: statistics about short URLs
+        @return: statistics about short URLs
+        @rtype: dict
         """
         if (shortUrls is None) and (urlHashs is None):
             return {}
@@ -198,10 +218,13 @@ class Api(object):
         """
         Get referring sites and number of clicks per referrer for a given short URL or hash.
 
-        @param shortUrl (str): URL to get referrers for
-        @param urlHash (str): URL hash to get referrers for
+        @param shortUrl: URL to get referrers for
+        @type shortUrl: str
+        @param urlHash: URL hash to get referrers for
+        @type urlHash: str
 
-        @return dict: referrers and clicks for the URL
+        @return: referrers and clicks for the URL
+        @rtype: dict
         """
         if (shortUrl is None) and (urlHash is None):
             return {}
@@ -219,10 +242,13 @@ class Api(object):
         """
         Get a list of countries from which clicks have originated for a given URL or hash.
 
-        @param shortUrl (str): URL to get countries for
-        @param urlHash (str): URL hash to get countries for
+        @param shortUrl: URL to get countries for
+        @type shortUrl: str
+        @param urlHash: URL hash to get countries for
+        @type urlHash: str
 
-        @return dict: countries informations for the URL or hash
+        @return: countries informations for the URL or hash
+        @rtype: dict
         """
         if (shortUrl is None) and (urlHash is None):
             return {}
@@ -240,10 +266,13 @@ class Api(object):
         """
         Get time series clicks per minute for the last hour (most recent to least recent) about short URLs/hashs.
 
-        @param shortUrls (list): zero or more URLs to get clicks statistics for
-        @param urlHashs (list): zero or more URL hashs to get clicks statistics for
+        @param shortUrls: zero or more URLs to get clicks statistics for
+        @type shortUrls: list
+        @param urlHashs: zero or more URL hashs to get clicks statistics for
+        @type urlHashs: list
 
-        @return dict: clicks statistics about short URLs
+        @return: clicks statistics about short URLs
+        @rtype: dict
         """
         if (shortUrls is None) and (urlHashs is None):
             return {}
@@ -271,9 +300,11 @@ class Api(object):
         """
         Check whether a given short domain is assigned for bitly Pro.
 
-        @param domain (str): domain to check
+        @param domain: domain to check
+        @type domain: str
 
-        @return bool: True if the domain is assigned for bitly Pro
+        @return: True if the domain is assigned for bitly Pro
+        @rtype: bool
         """
         url = "%s/bitly_pro_domain?login=%s&apiKey=%s&domain=%s" % (self.baseURL, self.login, self.key, domain)
         resp = json.load(self.opener.open(url))
@@ -284,9 +315,11 @@ class Api(object):
         """
         Find short URLs corresponding to given long URLs.
 
-        @param longUrls (list): zero or more long URLs to find
+        @param longUrls: zero or more long URLs to find
+        @type longUrls: list
 
-        @return dict: informations about found short URLs
+        @return: informations about found short URLs
+        @rtype: dict
         """
         if longUrls is None:
             return {}
@@ -304,10 +337,13 @@ class Api(object):
         Access to this function is restricted and must be requested by
         email at api@bit.ly.
 
-        @param login (str): account username
-        @param password (str): account password
+        @param login: account username
+        @type login: str
+        @param password: account password
+        @type password: str
 
-        @return dict: informations about requested account
+        @return: informations about requested account
+        @rtype: dict
         """
         url = "%s/authenticate" % self.baseURL
         data = urlencode({
@@ -324,10 +360,13 @@ class Api(object):
         """
         Get informations about short URLs/hashs (creator, page title, ...).
 
-        @param shortUrls (list): zero or more short URLs to query
-        @param urlHashs (list): zero or more short URL hashs to query
+        @param shortUrls: zero or more short URLs to query
+        @type shortUrls: list
+        @param urlHashs: zero or more short URL hashs to query
+        @type urlHashs: list
 
-        @return dict: informations about queried URLs/hashs
+        @return: informations about queried URLs/hashs
+        @rtype: dict
         """
         if (shortUrls is None) and (urlHashs is None):
             return {}
