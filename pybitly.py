@@ -17,8 +17,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 """
-Module to interact with the bit.ly API.
-All the functions provided by the API are implemented (except 0Auth functions).
+Module to interact with the bit.ly API functions.
+All the functions provided by the API are implemented except 0Auth functions.
 """
 
 __all__ = ('Api', 'ApiError', 'ArgTypeError')
@@ -52,15 +52,15 @@ class ArgTypeError(ApiError):
 
 class Api(object):
     """
-    Interact with the bit.ly API.
-
-    constructor:
-        @param login (str): API login
-        @param key (str): API key
+    Interact with the bit.ly API functions.
     """
     baseURL = "http://api.bit.ly/v3"
 
     def __init__(self, login, key):
+        """
+        @param login (str): API login
+        @param key (str): API key
+        """
         self.login = login
         self.key = key
         self.opener = build_opener()
@@ -111,8 +111,8 @@ class Api(object):
 
         @return dict: informations about shortened URL
         """
-        if (domain not in ("bit.ly", "j.mp")) and (not self.bitly_pro_domain(domain)):
-            raise ApiError("Unknown domain: %s (allowed: 'bit.ly', 'j.mp' and bitly Pro domains)" % domain)
+        if domain not in ("bit.ly", "j.mp"):
+            raise ApiError("Unknown domain: %s (allowed: 'bit.ly' and 'j.mp')" % domain)
         url = "%s/shorten?login=%s&apiKey=%s&longUrl=%s&domain=%s" % (self.baseURL, self.login, self.key, longUrl, domain)
         resp = json.load(self.opener.open(url))
         self._checkResp(resp)
