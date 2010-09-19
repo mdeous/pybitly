@@ -21,6 +21,8 @@ Module to interact with the bit.ly API.
 All the functions provided by the API are implemented (except 0Auth functions).
 """
 
+__all__ = ('Api', 'ApiError', 'ArgTypeError')
+
 import json
 from urllib import urlencode
 from urllib2 import build_opener
@@ -87,16 +89,16 @@ class Api(object):
         arglist = '&'+'&'.join(arglist)
         return arglist
 
-    def shorten(self, url, domain="bit.ly"):
+    def shorten(self, longUrl, domain="bit.ly"):
         """
         Shorten a given URL.
-        @param url (str): url to shorten
+        @param longUrl (str): url to shorten
         @param domain (str): domain to use for the short URL ('bit.ly' or 'j.mp')
         @return dict: informations about shortened URL
         """
         if (domain not in ("bit.ly", "j.mp")) and (not self.bitly_pro_domain(domain)):
             raise ApiError("Unknown domain: %s (allowed: 'bit.ly', 'j.mp' and bitly Pro domains)" % domain)
-        url = "%s/shorten?login=%s&apiKey=%s&longUrl=%s&domain=%s" % (self.baseURL, self.login, self.key, url, domain)
+        url = "%s/shorten?login=%s&apiKey=%s&longUrl=%s&domain=%s" % (self.baseURL, self.login, self.key, longUrl, domain)
         resp = json.load(self.opener.open(url))
         self._checkResp(resp)
         return resp['data']
