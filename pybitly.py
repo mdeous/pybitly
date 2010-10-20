@@ -146,13 +146,13 @@ class Api(object):
         if shortUrls is None:
             urlarg = ''
         else:
-            if type(shortUrls) is not list:
+            if not isinstance(shortUrls, list):
                 raise ArgTypeError('shortUrls', self._typeStr(shortUrls), 'list')
             urlarg = self._multiArgs('shortUrl', shortUrls)
         if urlHashs is None:
             hasharg = ''
         else:
-            if type(urlHashs) is not list:
+            if not isinstance(urlHashs, list):
                 raise ArgTypeError('urlHashs', self._typeStr(urlHashs), 'list')
             hasharg = self._multiArgs('hash', urlHashs)
         url = "%s/expand?login=%s&apiKey=%s%s%s" % (self.baseURL, self.login, self.key, urlarg, hasharg)
@@ -197,13 +197,13 @@ class Api(object):
         if shortUrls is None:
             urlarg = ''
         else:
-            if type(shortUrls) is not list:
+            if not isinstance(shortUrls, list):
                 raise ArgTypeError('shortUrls', self._typeStr(shortUrls), 'list')
             urlarg = self._multiArgs('shortUrl', shortUrls)
         if urlHashs is None:
             hasharg = ''
         else:
-            if type(urlHashs) is not list:
+            if not isinstance(urlHashs, list):
                 raise ArgTypeError('urlHashs', self._typeStr(urlHashs), 'list')
             hasharg = self._multiArgs('hash', urlHashs)
         url = '%s/clicks?login=%s&apiKey=%s%s%s' % (self.baseURL, self.login, self.key, urlarg, hasharg)
@@ -279,13 +279,13 @@ class Api(object):
         if shortUrls is None:
             urlarg = ''
         else:
-            if type(shortUrls) is not list:
+            if not isinstance(shortUrls, list):
                 raise ArgTypeError('shortUrls', self._typeStr(shortUrls), 'list')
             urlarg = self._multiArgs('shortUrl', shortUrls)
         if urlHashs is None:
             hasharg = ''
         else:
-            if type(urlHashs) is not list:
+            if not isinstance(urlHashs, list):
                 raise ArgTypeError('urlHashs', self._typeStr(urlHashs), 'list')
             hasharg = self._multiArgs('hash', urlHashs)
         url = "%s/clicks_by_minute?login=%s&apiKey=%s%s%s" % (self.baseURL, self.login, self.key, urlarg, hasharg)
@@ -323,7 +323,7 @@ class Api(object):
         """
         if longUrls is None:
             return {}
-        if type(longUrls) is not list:
+        if not isinstance(longUrls, list):
             raise ArgTypeError('longUrls', self._typeStr(longUrls), 'list')
         urlarg = self._multiArgs('url', longUrls)
         url = "%s/lookup?login=%s&apiKey=%s%s" % (self.baseURL, self.login, self.key, urlarg)
@@ -373,13 +373,13 @@ class Api(object):
         if shortUrls is None:
             urlarg = ''
         else:
-            if type(shortUrls) is not list:
+            if not isinstance(shortUrls, list):
                 raise ArgTypeError('shortUrls', self._typeStr(shortUrls), 'list')
             urlarg = self._multiArgs('shortUrl', shortUrls)
         if urlHashs is None:
             hasharg = ''
         else:
-            if type(urlHashs) is not list:
+            if not isinstance(urlHashs, list):
                 raise ArgTypeError('urlHashs', self._typeStr(urlHashs), 'list')
             hasharg = self._multiArgs('hash', urlHashs)
         url = "%s/info?login=%s&apiKey=%s%s%s" % (self.baseURL, self.login, self.key, urlarg, hasharg)
