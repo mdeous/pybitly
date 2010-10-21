@@ -23,7 +23,7 @@ All the functions provided by the API are implemented except 0Auth functions.
 
 __all__ = ('Api', 'ApiError', 'ArgTypeError')
 
-import json
+from json import load as json_load
 from urllib import urlencode
 from urllib2 import build_opener
 
@@ -67,7 +67,7 @@ class Api(object):
         self.key = key
         self.opener = build_opener()
 
-    def _checkResp(self, data):
+    def _check_resp(self, data):
         """
         Check query status and raise an ApiError if not OK.
 
@@ -78,7 +78,7 @@ class Api(object):
             message = "Error %d: %s." % (data['status_code'], data['status_txt'])
             raise ApiError(message)
 
-    def _multiArgs(self, argname, args):
+    def _multi_args(self, argname, args):
         """
         Format URL arguments for queries allowing multiple ones.
 
@@ -98,7 +98,7 @@ class Api(object):
         arglist = '&'+'&'.join(arglist)
         return arglist
 
-    def _typeStr(self, obj):
+    def _type_str(self, obj):
         """
         Get the string representation of an object's type.
 
@@ -125,8 +125,8 @@ class Api(object):
         if domain not in ("bit.ly", "j.mp"):
             raise ApiError("Unknown domain: %s (allowed: 'bit.ly' and 'j.mp')" % domain)
         url = "%s/shorten?login=%s&apiKey=%s&longUrl=%s&domain=%s" % (self.baseURL, self.login, self.key, longUrl, domain)
-        resp = json.load(self.opener.open(url))
-        self._checkResp(resp)
+        resp = json_load(self.opener.open(url))
+        self._check_resp(resp)
         return resp['data']
 
     def expand(self, shortUrls=None, urlHashs=None):
@@ -147,17 +147,17 @@ class Api(object):
             urlarg = ''
         else:
             if not isinstance(shortUrls, list):
-                raise ArgTypeError('shortUrls', self._typeStr(shortUrls), 'list')
-            urlarg = self._multiArgs('shortUrl', shortUrls)
+                raise ArgTypeError('shortUrls', self._type_str(shortUrls), 'list')
+            urlarg = self._multi_args('shortUrl', shortUrls)
         if urlHashs is None:
             hasharg = ''
         else:
             if not isinstance(urlHashs, list):
-                raise ArgTypeError('urlHashs', self._typeStr(urlHashs), 'list')
-            hasharg = self._multiArgs('hash', urlHashs)
+                raise ArgTypeError('urlHashs', self._type_str(urlHashs), 'list')
+            hasharg = self._multi_args('hash', urlHashs)
         url = "%s/expand?login=%s&apiKey=%s%s%s" % (self.baseURL, self.login, self.key, urlarg, hasharg)
-        resp = json.load(self.opener.open(url))
-        self._checkResp(resp)
+        resp = json_load(self.opener.open(url))
+        self._check_resp(resp)
         data = resp['data']['expand']
         if len(data) == 1:
             data = data[0]
@@ -176,8 +176,8 @@ class Api(object):
         @rtype: bool
         """
         url = "%s/validate?login=%s&apiKey=%s&x_login=%s&x_apiKey=%s" % (self.baseURL, self.login, self.key, login, key)
-        resp = json.load(self.opener.open(url))
-        self._checkResp(resp)
+        resp = json_load(self.opener.open(url))
+        self._check_resp(resp)
         return True if (resp['data']['valid'] == 1) else False
 
     def clicks(self, shortUrls=None, urlHashs=None):
@@ -198,17 +198,17 @@ class Api(object):
             urlarg = ''
         else:
             if not isinstance(shortUrls, list):
-                raise ArgTypeError('shortUrls', self._typeStr(shortUrls), 'list')
-            urlarg = self._multiArgs('shortUrl', shortUrls)
+                raise ArgTypeError('shortUrls', self._type_str(shortUrls), 'list')
+            urlarg = self._multi_args('shortUrl', shortUrls)
         if urlHashs is None:
             hasharg = ''
         else:
             if not isinstance(urlHashs, list):
-                raise ArgTypeError('urlHashs', self._typeStr(urlHashs), 'list')
-            hasharg = self._multiArgs('hash', urlHashs)
+                raise ArgTypeError('urlHashs', self._type_str(urlHashs), 'list')
+            hasharg = self._multi_args('hash', urlHashs)
         url = '%s/clicks?login=%s&apiKey=%s%s%s' % (self.baseURL, self.login, self.key, urlarg, hasharg)
-        resp = json.load(self.opener.open(url))
-        self._checkResp(resp)
+        resp = json_load(self.opener.open(url))
+        self._check_resp(resp)
         data = resp['data']['clicks']
         if len(data) == 1:
             data = data[0]
@@ -234,8 +234,8 @@ class Api(object):
             url = "%s/referrers?login=%s&apiKey=%s&shortUrl=%s" % (self.baseURL, self.login, self.key, shortUrl)
         if urlHash is not None:
             url = "%s/referrers?login=%s&apiKey=%s&hash=%s" % (self.baseURL, self.login, self.key, urlHash)
-        resp = json.load(self.opener.open(url))
-        self._checkResp(resp)
+        resp = json_load(self.opener.open(url))
+        self._check_resp(resp)
         return resp['data']
 
     def countries(self, shortUrl=None, urlHash=None):
@@ -258,8 +258,8 @@ class Api(object):
             url = "%s/countries?login=%s&apiKey=%s&shortUrl=%s" % (self.baseURL, self.login, self.key, shortUrl)
         if urlHash is not None:
             url = "%s/countries?login=%s&apiKey=%s&hash=%s" % (self.baseURL, self.login, self.key, urlHash)
-        resp = json.load(self.opener.open(url))
-        self._checkResp(resp)
+        resp = json_load(self.opener.open(url))
+        self._check_resp(resp)
         return resp['data']
 
     def clicks_by_minute(self, shortUrls=None, urlHashs=None):
@@ -280,17 +280,17 @@ class Api(object):
             urlarg = ''
         else:
             if not isinstance(shortUrls, list):
-                raise ArgTypeError('shortUrls', self._typeStr(shortUrls), 'list')
-            urlarg = self._multiArgs('shortUrl', shortUrls)
+                raise ArgTypeError('shortUrls', self._type_str(shortUrls), 'list')
+            urlarg = self._multi_args('shortUrl', shortUrls)
         if urlHashs is None:
             hasharg = ''
         else:
             if not isinstance(urlHashs, list):
-                raise ArgTypeError('urlHashs', self._typeStr(urlHashs), 'list')
-            hasharg = self._multiArgs('hash', urlHashs)
+                raise ArgTypeError('urlHashs', self._type_str(urlHashs), 'list')
+            hasharg = self._multi_args('hash', urlHashs)
         url = "%s/clicks_by_minute?login=%s&apiKey=%s%s%s" % (self.baseURL, self.login, self.key, urlarg, hasharg)
-        resp = json.load(self.opener.open(url))
-        self._checkResp(resp)
+        resp = json_load(self.opener.open(url))
+        self._check_resp(resp)
         data = resp['data']['clicks_by_minute']
         if len(data) == 1:
             data = data[0]
@@ -307,8 +307,8 @@ class Api(object):
         @rtype: bool
         """
         url = "%s/bitly_pro_domain?login=%s&apiKey=%s&domain=%s" % (self.baseURL, self.login, self.key, domain)
-        resp = json.load(self.opener.open(url))
-        self._checkResp(resp)
+        resp = json_load(self.opener.open(url))
+        self._check_resp(resp)
         return True if (resp['data']['bitly_pro_domain'] == 1) else False
 
     def lookup(self, longUrls=None):
@@ -324,11 +324,11 @@ class Api(object):
         if longUrls is None:
             return {}
         if not isinstance(longUrls, list):
-            raise ArgTypeError('longUrls', self._typeStr(longUrls), 'list')
-        urlarg = self._multiArgs('url', longUrls)
+            raise ArgTypeError('longUrls', self._type_str(longUrls), 'list')
+        urlarg = self._multi_args('url', longUrls)
         url = "%s/lookup?login=%s&apiKey=%s%s" % (self.baseURL, self.login, self.key, urlarg)
-        resp = json.load(self.opener.open(url))
-        self._checkResp(resp)
+        resp = json_load(self.opener.open(url))
+        self._check_resp(resp)
         return resp['data']['lookup']
 
     def authenticate(self, login, password):
@@ -352,8 +352,8 @@ class Api(object):
             'x_login': login,
             'x_password': password,
         })
-        resp = json.load(self.opener.open(url, data))
-        self._checkResp(resp)
+        resp = json_load(self.opener.open(url, data))
+        self._check_resp(resp)
         return resp['data']['authenticate']
 
     def info(self, shortUrls=None, urlHashs=None):
@@ -374,17 +374,17 @@ class Api(object):
             urlarg = ''
         else:
             if not isinstance(shortUrls, list):
-                raise ArgTypeError('shortUrls', self._typeStr(shortUrls), 'list')
-            urlarg = self._multiArgs('shortUrl', shortUrls)
+                raise ArgTypeError('shortUrls', self._type_str(shortUrls), 'list')
+            urlarg = self._multi_args('shortUrl', shortUrls)
         if urlHashs is None:
             hasharg = ''
         else:
             if not isinstance(urlHashs, list):
-                raise ArgTypeError('urlHashs', self._typeStr(urlHashs), 'list')
-            hasharg = self._multiArgs('hash', urlHashs)
+                raise ArgTypeError('urlHashs', self._type_str(urlHashs), 'list')
+            hasharg = self._multi_args('hash', urlHashs)
         url = "%s/info?login=%s&apiKey=%s%s%s" % (self.baseURL, self.login, self.key, urlarg, hasharg)
-        resp = json.load(self.opener.open(url))
-        self._checkResp(resp)
+        resp = json_load(self.opener.open(url))
+        self._check_resp(resp)
         data = resp['data']['info']
         if len(data) == 1:
             data = data[0]
