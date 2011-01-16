@@ -10,3 +10,7 @@ __all__ = [
 
 from api import BitlyApi, RespStatus
 from errors import BitlyApiError, ArgumentError, ArgTypeError
+
+NAME = 'pybitly'
+VERSION = '0.1'
+AUTHOR = 'MatToufoutu'
