@@ -8,7 +8,7 @@ All the functions provided by the API are implemented except 0Auth functions.
 #TODO: implement OAuth methods
 
 from urllib import urlencode
-from urllib2 import build_opener
+from urllib2 import build_opener, HTTPSHandler
 
 try:
     # Python >= 2.6
@@ -54,6 +54,11 @@ class BitlyApi(object):
         self.login = login
         self.key = key
         self.opener = build_opener()
+        self.has_ssl = False
+        for handler in self.opener.handlers:
+            if isinstance(handler, HTTPSHandler):
+                self.has_ssl = True
+                break
 
     def __repr__(self):
         return "BitlyApi(login='%s', key='%s')" % (self.login, self.key)
@@ -289,6 +294,22 @@ class BitlyApi(object):
         )
         resp = self._get_resp(url)
         return resp
+
+    def oauth_access_token(self, client_id, client_secret, **kwargs):
+        """
+        Request an OAuth access token (used for OAuth Web Flow
+        and Oauth XAuth Flow).
+        """
+        if not self.has_ssl:
+            msg = "Your Python installation doesn't have SSL support."
+            raise NotImplementedError(msg)
+        data = {'client_id': client_id, 'client_secret': client_secret}
+        for argname in kwargs:
+            data[argname] = kwargs[argname]
+        data = urlencode(data)
+        resp = self.opener.open('https://api-ssl.bit.ly/oauth/access_token',
+                                data)
+        return resp.read()
 
 
 def obj_type(obj):

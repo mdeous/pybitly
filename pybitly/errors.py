@@ -3,6 +3,7 @@
 This module contains the classes used for errors handling.
 """
 
+
 class BitlyApiError(Exception):
     """
     Generic exception for API errors.
