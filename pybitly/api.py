@@ -63,11 +63,11 @@ class BitlyApi(object):
             self.login, self.key, hex(id(self))
         )
 
-    def _get_resp(self, url):
+    def _get_resp(self, url, data=None):
         """
         Send a query to bit.ly and return the received data.
         """
-        resp = self.opener.open(url)
+        resp = self.opener.open(url, data)
         json_data = json_load(resp)
         status = RespStatus(json_data['status_code'], json_data['status_txt'])
         data = json_data['data']
@@ -263,7 +263,7 @@ class BitlyApi(object):
             'x_login': login,
             'x_password': password,
         })
-        resp = self._get_resp(url)
+        resp = self._get_resp(url, data)
         return resp
 
     def info(self, shortUrls=None, urlHashs=None):
